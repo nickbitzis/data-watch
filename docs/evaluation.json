@@ -1,0 +1,542 @@
+{
+ "learned": {
+  "mode": "learned",
+  "incidents": [
+   {
+    "id": "partial_load",
+    "kind": "volume drop",
+    "table": "raw_web_sessions",
+    "start_day": 45,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "volume",
+    "tables_flagged": 5,
+    "tables_affected": 5,
+    "root_cause_correct": true,
+    "incident": "INC-045-raw_web_sessions"
+   },
+   {
+    "id": "late_load",
+    "kind": "freshness",
+    "table": "raw_inventory",
+    "start_day": 52,
+    "detected": true,
+    "ttd_hours": 1.11,
+    "detected_by": "freshness",
+    "tables_flagged": 3,
+    "tables_affected": 3,
+    "root_cause_correct": true,
+    "incident": "INC-052-raw_inventory"
+   },
+   {
+    "id": "schema_change",
+    "kind": "schema",
+    "table": "raw_customers",
+    "start_day": 58,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "schema",
+    "tables_flagged": 1,
+    "tables_affected": 4,
+    "root_cause_correct": true,
+    "incident": "INC-058-raw_customers"
+   },
+   {
+    "id": "duplicate_load",
+    "kind": "volume spike",
+    "table": "raw_shipments",
+    "start_day": 66,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "uniqueness",
+    "tables_flagged": 1,
+    "tables_affected": 4,
+    "root_cause_correct": true,
+    "incident": "INC-066-raw_shipments"
+   },
+   {
+    "id": "cents_shift",
+    "kind": "distribution shift",
+    "table": "raw_payments",
+    "start_day": 74,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "distribution",
+    "tables_flagged": 5,
+    "tables_affected": 6,
+    "root_cause_correct": true,
+    "incident": "INC-074-raw_payments"
+   },
+   {
+    "id": "null_spike",
+    "kind": "null rate",
+    "table": "raw_customers",
+    "start_day": 84,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "null_rate",
+    "tables_flagged": 3,
+    "tables_affected": 4,
+    "root_cause_correct": true,
+    "incident": "INC-084-raw_customers"
+   },
+   {
+    "id": "orphan_returns",
+    "kind": "referential",
+    "table": "raw_returns",
+    "start_day": 102,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "referential",
+    "tables_flagged": 2,
+    "tables_affected": 5,
+    "root_cause_correct": true,
+    "incident": "INC-102-raw_returns"
+   },
+   {
+    "id": "silent_quantity_bug",
+    "kind": "silent upstream bug",
+    "table": "raw_order_items",
+    "start_day": 108,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "distribution",
+    "tables_flagged": 7,
+    "tables_affected": 7,
+    "root_cause_correct": true,
+    "incident": "INC-108-raw_order_items"
+   }
+  ],
+  "detection_rate": 1.0,
+  "median_ttd_hours": 0.0,
+  "root_cause_accuracy": 1.0,
+  "alerts": 89,
+  "false_alerts": 23,
+  "false_alerts_per_table_week": 0.0427,
+  "noisiest_tables": [
+   [
+    "stg_order_items",
+    3
+   ],
+   [
+    "raw_payments",
+    2
+   ],
+   [
+    "stg_payments",
+    2
+   ],
+   [
+    "fct_support_daily",
+    2
+   ],
+   [
+    "raw_orders",
+    1
+   ]
+  ],
+  "incident_count": 18,
+  "false_incidents": 10,
+  "alert_reduction": 0.7978,
+  "weeks_scored": 13.14
+ },
+ "static": {
+  "mode": "static",
+  "incidents": [
+   {
+    "id": "partial_load",
+    "kind": "volume drop",
+    "table": "raw_web_sessions",
+    "start_day": 45,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "volume",
+    "tables_flagged": 5,
+    "tables_affected": 5,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   },
+   {
+    "id": "late_load",
+    "kind": "freshness",
+    "table": "raw_inventory",
+    "start_day": 52,
+    "detected": true,
+    "ttd_hours": 4.95,
+    "detected_by": "freshness",
+    "tables_flagged": 3,
+    "tables_affected": 3,
+    "root_cause_correct": true,
+    "incident": "INC-052-raw_inventory"
+   },
+   {
+    "id": "schema_change",
+    "kind": "schema",
+    "table": "raw_customers",
+    "start_day": 58,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "schema",
+    "tables_flagged": 4,
+    "tables_affected": 4,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   },
+   {
+    "id": "duplicate_load",
+    "kind": "volume spike",
+    "table": "raw_shipments",
+    "start_day": 66,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "uniqueness",
+    "tables_flagged": 1,
+    "tables_affected": 4,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   },
+   {
+    "id": "cents_shift",
+    "kind": "distribution shift",
+    "table": "raw_payments",
+    "start_day": 74,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "distribution",
+    "tables_flagged": 6,
+    "tables_affected": 6,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   },
+   {
+    "id": "null_spike",
+    "kind": "null rate",
+    "table": "raw_customers",
+    "start_day": 84,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "null_rate",
+    "tables_flagged": 4,
+    "tables_affected": 4,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   },
+   {
+    "id": "orphan_returns",
+    "kind": "referential",
+    "table": "raw_returns",
+    "start_day": 102,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "referential",
+    "tables_flagged": 4,
+    "tables_affected": 5,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   },
+   {
+    "id": "silent_quantity_bug",
+    "kind": "silent upstream bug",
+    "table": "raw_order_items",
+    "start_day": 108,
+    "detected": true,
+    "ttd_hours": 0.0,
+    "detected_by": "distribution",
+    "tables_flagged": 7,
+    "tables_affected": 7,
+    "root_cause_correct": false,
+    "incident": "INC-007-raw_returns"
+   }
+  ],
+  "detection_rate": 1.0,
+  "median_ttd_hours": 0.0,
+  "root_cause_accuracy": 0.125,
+  "alerts": 1150,
+  "false_alerts": 1025,
+  "false_alerts_per_table_week": 1.9022,
+  "noisiest_tables": [
+   [
+    "stg_order_items",
+    127
+   ],
+   [
+    "fct_support_daily",
+    99
+   ],
+   [
+    "mart_finance_summary",
+    60
+   ],
+   [
+    "raw_support_tickets",
+    59
+   ],
+   [
+    "stg_support_tickets",
+    59
+   ]
+  ],
+  "incident_count": 7,
+  "false_incidents": 5,
+  "alert_reduction": 0.9939,
+  "weeks_scored": 13.14
+ },
+ "by_type": [
+  {
+   "id": "partial_load",
+   "kind": "volume drop",
+   "table": "raw_web_sessions",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 5,
+   "tables_affected": 5
+  },
+  {
+   "id": "late_load",
+   "kind": "freshness",
+   "table": "raw_inventory",
+   "learned_detected": true,
+   "learned_ttd_hours": 1.11,
+   "static_detected": true,
+   "static_ttd_hours": 4.95,
+   "root_cause_correct": true,
+   "tables_flagged": 3,
+   "tables_affected": 3
+  },
+  {
+   "id": "schema_change",
+   "kind": "schema",
+   "table": "raw_customers",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 1,
+   "tables_affected": 4
+  },
+  {
+   "id": "duplicate_load",
+   "kind": "volume spike",
+   "table": "raw_shipments",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 1,
+   "tables_affected": 4
+  },
+  {
+   "id": "cents_shift",
+   "kind": "distribution shift",
+   "table": "raw_payments",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 5,
+   "tables_affected": 6
+  },
+  {
+   "id": "null_spike",
+   "kind": "null rate",
+   "table": "raw_customers",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 3,
+   "tables_affected": 4
+  },
+  {
+   "id": "orphan_returns",
+   "kind": "referential",
+   "table": "raw_returns",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 2,
+   "tables_affected": 5
+  },
+  {
+   "id": "silent_quantity_bug",
+   "kind": "silent upstream bug",
+   "table": "raw_order_items",
+   "learned_detected": true,
+   "learned_ttd_hours": 0.0,
+   "static_detected": true,
+   "static_ttd_hours": 0.0,
+   "root_cause_correct": true,
+   "tables_flagged": 7,
+   "tables_affected": 7
+  }
+ ],
+ "notifications": {
+  "learned": 26,
+  "static": 222
+ },
+ "planted": [
+  {
+   "id": "partial_load",
+   "kind": "volume drop",
+   "table": "raw_web_sessions",
+   "column": null,
+   "start_day": 45,
+   "end_day": 45,
+   "monitors": [
+    "volume"
+   ],
+   "description": "The analytics export timed out and loaded 35% of the day's sessions.",
+   "affected": [
+    "raw_web_sessions",
+    "fct_marketing_roi",
+    "fct_web_traffic",
+    "mart_exec_kpis",
+    "stg_web_sessions"
+   ]
+  },
+  {
+   "id": "late_load",
+   "kind": "freshness",
+   "table": "raw_inventory",
+   "column": null,
+   "start_day": 52,
+   "end_day": 52,
+   "monitors": [
+    "freshness"
+   ],
+   "description": "The warehouse system snapshot arrived 10 hours late.",
+   "affected": [
+    "raw_inventory",
+    "fct_inventory_daily",
+    "stg_inventory"
+   ]
+  },
+  {
+   "id": "schema_change",
+   "kind": "schema",
+   "table": "raw_customers",
+   "column": "postal_code",
+   "start_day": 58,
+   "end_day": 58,
+   "monitors": [
+    "schema"
+   ],
+   "description": "postal_code changed from INTEGER to VARCHAR to support Canadian and UK codes.",
+   "affected": [
+    "raw_customers",
+    "dim_customers",
+    "mart_exec_kpis",
+    "stg_customers"
+   ]
+  },
+  {
+   "id": "duplicate_load",
+   "kind": "volume spike",
+   "table": "raw_shipments",
+   "column": null,
+   "start_day": 66,
+   "end_day": 66,
+   "monitors": [
+    "volume",
+    "uniqueness"
+   ],
+   "description": "A connector retry loaded the same shipment file twice.",
+   "affected": [
+    "raw_shipments",
+    "fct_shipments",
+    "int_fulfillment",
+    "stg_shipments"
+   ]
+  },
+  {
+   "id": "cents_shift",
+   "kind": "distribution shift",
+   "table": "raw_payments",
+   "column": "amount",
+   "start_day": 74,
+   "end_day": 76,
+   "monitors": [
+    "distribution"
+   ],
+   "description": "The processor export started sending amounts in cents instead of dollars.",
+   "affected": [
+    "raw_payments",
+    "fct_orders",
+    "fct_payments",
+    "mart_exec_kpis",
+    "mart_finance_summary",
+    "stg_payments"
+   ]
+  },
+  {
+   "id": "null_spike",
+   "kind": "null rate",
+   "table": "raw_customers",
+   "column": "email",
+   "start_day": 84,
+   "end_day": 85,
+   "monitors": [
+    "null_rate"
+   ],
+   "description": "A signup form change left email empty for about 35% of new customers.",
+   "affected": [
+    "raw_customers",
+    "dim_customers",
+    "mart_exec_kpis",
+    "stg_customers"
+   ]
+  },
+  {
+   "id": "orphan_returns",
+   "kind": "referential",
+   "table": "raw_returns",
+   "column": "order_id",
+   "start_day": 102,
+   "end_day": 103,
+   "monitors": [
+    "referential"
+   ],
+   "description": "The returns portal wrote marketplace order ids that do not exist in the orders table.",
+   "affected": [
+    "raw_returns",
+    "fct_returns",
+    "fct_shipments",
+    "int_fulfillment",
+    "stg_returns"
+   ]
+  },
+  {
+   "id": "silent_quantity_bug",
+   "kind": "silent upstream bug",
+   "table": "raw_order_items",
+   "column": "quantity",
+   "start_day": 108,
+   "end_day": 111,
+   "monitors": [
+    "distribution"
+   ],
+   "description": "A storefront release wrote quantity 1 on every order line; units and revenue are understated in every downstream model.",
+   "affected": [
+    "raw_order_items",
+    "fct_orders",
+    "fct_revenue_daily",
+    "int_order_revenue",
+    "mart_exec_kpis",
+    "mart_finance_summary",
+    "stg_order_items"
+   ]
+  }
+ ],
+ "scale": 1.0,
+ "tables": 41,
+ "days": 120
+}

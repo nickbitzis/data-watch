@@ -1,0 +1,281 @@
+# Warehouse metadata for Larkspur Trail Co., a made-up online outdoor gear retailer.
+# Lineage, ownership, keys, and routing are declared here. datawatch reads this file;
+# the transform SQL lives in src/datawatch/generate.py and a test checks it matches `upstream`.
+
+company: Larkspur Trail Co.
+start_date: 2026-06-01
+days: 120
+holidays: [2026-07-04, 2026-09-07]
+
+monitors:
+  sensitivity: medium          # low | medium | high, sets how many MAD units count as anomalous
+  warmup_days: 28              # no alerts for a metric until it has this many clean points
+  freshness_warmup_days: 14
+  window_days: 56              # baseline history window
+  dedup_gap_days: 2            # alerts this close to an open incident join it instead of opening a new one
+
+owners:
+  data-platform:   { pager: pd-data-platform, queue: DATA-PLATFORM, slack: "#data-platform" }
+  commerce-data:   { pager: pd-commerce-data, queue: COMMERCE, slack: "#commerce-data" }
+  finance-data:    { pager: pd-finance-data, queue: FINANCE-DATA, slack: "#finance-data" }
+  growth-analytics: { pager: pd-growth, queue: GROWTH, slack: "#growth-analytics" }
+  ops-analytics:   { pager: pd-ops-analytics, queue: OPS, slack: "#ops-analytics" }
+  customer-data:   { pager: pd-customer-data, queue: CUSTOMER, slack: "#customer-data" }
+
+# First match wins. `page` sends to the owner's pager, `ticket` opens a ticket in the owner's queue.
+routing:
+  - { name: critical-mart, match: { critical: true }, action: page }
+  - { name: high-severity-source, match: { layer: ingestion, severity: high }, action: ticket, priority: P2 }
+  - { name: default, match: {}, action: ticket, priority: P3 }
+
+tables:
+  # ---------------- ingestion: loaded by connectors into raw_* ----------------
+  raw_customers:
+    layer: ingestion
+    owner: data-platform
+    description: Customer signups from the storefront database.
+    primary_key: customer_id
+    columns: { customer_id: BIGINT, email: VARCHAR, country: VARCHAR, postal_code: INTEGER, signup_channel: VARCHAR, created_at: TIMESTAMP }
+    roles: { postal_code: code }
+  raw_products:
+    layer: ingestion
+    owner: data-platform
+    description: Daily snapshot of the product catalog.
+    primary_key: product_id
+    columns: { product_id: BIGINT, sku: VARCHAR, category: VARCHAR, unit_price: DOUBLE, weight_grams: INTEGER }
+  raw_orders:
+    layer: ingestion
+    owner: data-platform
+    description: Orders from the storefront database.
+    primary_key: order_id
+    columns: { order_id: BIGINT, customer_id: BIGINT, order_ts: TIMESTAMP, currency: VARCHAR, status: VARCHAR, channel: VARCHAR, shipping_fee: DOUBLE }
+  raw_order_items:
+    layer: ingestion
+    owner: data-platform
+    description: Order lines from the storefront database.
+    primary_key: order_item_id
+    columns: { order_item_id: BIGINT, order_id: BIGINT, product_id: BIGINT, quantity: INTEGER, unit_price: DOUBLE, discount_pct: DOUBLE }
+  raw_payments:
+    layer: ingestion
+    owner: data-platform
+    description: Captured payments from the payment processor export.
+    primary_key: payment_id
+    columns: { payment_id: BIGINT, order_id: BIGINT, amount: DOUBLE, method: VARCHAR, currency: VARCHAR }
+  raw_refunds:
+    layer: ingestion
+    owner: data-platform
+    description: Refunds from the payment processor export.
+    primary_key: refund_id
+    columns: { refund_id: BIGINT, order_id: BIGINT, amount: DOUBLE, reason: VARCHAR }
+  raw_shipments:
+    layer: ingestion
+    owner: data-platform
+    description: Shipment events from the warehouse management system.
+    primary_key: shipment_id
+    columns: { shipment_id: BIGINT, order_id: BIGINT, carrier: VARCHAR, warehouse: VARCHAR, shipped_at: TIMESTAMP }
+  raw_returns:
+    layer: ingestion
+    owner: data-platform
+    description: Return requests from the returns portal.
+    primary_key: return_id
+    columns: { return_id: BIGINT, order_id: BIGINT, reason: VARCHAR, refund_amount: DOUBLE }
+    foreign_keys: { order_id: raw_orders.order_id }
+  raw_inventory:
+    layer: ingestion
+    owner: data-platform
+    description: Daily on-hand snapshot per product and warehouse.
+    columns: { product_id: BIGINT, warehouse: VARCHAR, on_hand: INTEGER }
+  raw_web_sessions:
+    layer: ingestion
+    owner: data-platform
+    description: Web analytics sessions export.
+    primary_key: session_id
+    columns: { session_id: BIGINT, customer_id: BIGINT, device: VARCHAR, landing_page: VARCHAR, pageviews: INTEGER, referrer: VARCHAR }
+  raw_marketing_spend:
+    layer: ingestion
+    owner: data-platform
+    description: Daily spend and clicks per campaign from the ad platforms.
+    primary_key: campaign_id
+    columns: { campaign_id: BIGINT, channel: VARCHAR, spend: DOUBLE, clicks: INTEGER }
+  raw_support_tickets:
+    layer: ingestion
+    owner: data-platform
+    description: Tickets from the help desk.
+    primary_key: ticket_id
+    columns: { ticket_id: BIGINT, customer_id: BIGINT, category: VARCHAR, priority: VARCHAR, channel: VARCHAR }
+  raw_fx_rates:
+    layer: ingestion
+    owner: data-platform
+    description: Daily currency rates to USD from the treasury feed.
+    primary_key: currency
+    columns: { currency: VARCHAR, rate_to_usd: DOUBLE }
+
+  # ---------------- staging: typed, cleaned, one model per source ----------------
+  stg_customers:
+    layer: staging
+    owner: customer-data
+    upstream: [raw_customers]
+    primary_key: customer_id
+    columns: { customer_id: BIGINT, email: VARCHAR, country: VARCHAR, postal_code: VARCHAR, signup_channel: VARCHAR, created_at: TIMESTAMP }
+    roles: { postal_code: code }
+  stg_products:
+    layer: staging
+    owner: commerce-data
+    upstream: [raw_products]
+    primary_key: product_id
+    columns: { product_id: BIGINT, sku: VARCHAR, category: VARCHAR, unit_price: DOUBLE, weight_grams: INTEGER }
+  stg_orders:
+    layer: staging
+    owner: commerce-data
+    upstream: [raw_orders]
+    primary_key: order_id
+    columns: { order_id: BIGINT, customer_id: BIGINT, order_ts: TIMESTAMP, currency: VARCHAR, status: VARCHAR, channel: VARCHAR, shipping_fee: DOUBLE }
+    foreign_keys: { customer_id: stg_customers.customer_id }
+  stg_order_items:
+    layer: staging
+    owner: commerce-data
+    upstream: [raw_order_items]
+    primary_key: order_item_id
+    columns: { order_item_id: BIGINT, order_id: BIGINT, product_id: BIGINT, quantity: INTEGER, unit_price: DOUBLE, discount_pct: DOUBLE, line_amount: DOUBLE }
+    foreign_keys: { order_id: stg_orders.order_id }
+  stg_payments:
+    layer: staging
+    owner: finance-data
+    upstream: [raw_payments, stg_fx_rates]
+    primary_key: payment_id
+    columns: { payment_id: BIGINT, order_id: BIGINT, method: VARCHAR, currency: VARCHAR, amount: DOUBLE, amount_usd: DOUBLE }
+    foreign_keys: { order_id: stg_orders.order_id }
+  stg_refunds:
+    layer: staging
+    owner: finance-data
+    upstream: [raw_refunds]
+    primary_key: refund_id
+    columns: { refund_id: BIGINT, order_id: BIGINT, amount: DOUBLE, reason: VARCHAR }
+  stg_shipments:
+    layer: staging
+    owner: ops-analytics
+    upstream: [raw_shipments]
+    primary_key: shipment_id
+    columns: { shipment_id: BIGINT, order_id: BIGINT, carrier: VARCHAR, warehouse: VARCHAR, shipped_at: TIMESTAMP }
+  stg_returns:
+    layer: staging
+    owner: ops-analytics
+    upstream: [raw_returns]
+    primary_key: return_id
+    columns: { return_id: BIGINT, order_id: BIGINT, reason: VARCHAR, refund_amount: DOUBLE }
+    foreign_keys: { order_id: stg_orders.order_id }
+  stg_inventory:
+    layer: staging
+    owner: ops-analytics
+    upstream: [raw_inventory]
+    columns: { product_id: BIGINT, warehouse: VARCHAR, on_hand: INTEGER }
+  stg_web_sessions:
+    layer: staging
+    owner: growth-analytics
+    upstream: [raw_web_sessions]
+    primary_key: session_id
+    columns: { session_id: BIGINT, customer_id: BIGINT, device: VARCHAR, landing_page: VARCHAR, pageviews: INTEGER }
+  stg_marketing_spend:
+    layer: staging
+    owner: growth-analytics
+    upstream: [raw_marketing_spend]
+    primary_key: campaign_id
+    columns: { campaign_id: BIGINT, channel: VARCHAR, spend: DOUBLE, clicks: INTEGER }
+  stg_support_tickets:
+    layer: staging
+    owner: customer-data
+    upstream: [raw_support_tickets]
+    primary_key: ticket_id
+    columns: { ticket_id: BIGINT, customer_id: BIGINT, category: VARCHAR, priority: VARCHAR, channel: VARCHAR }
+  stg_fx_rates:
+    layer: staging
+    owner: finance-data
+    upstream: [raw_fx_rates]
+    primary_key: currency
+    columns: { currency: VARCHAR, rate_to_usd: DOUBLE }
+
+  # ---------------- marts: intermediate models, facts, dimensions, and reporting marts ----------------
+  int_order_revenue:
+    layer: marts
+    owner: commerce-data
+    upstream: [stg_orders, stg_order_items, stg_fx_rates]
+    primary_key: order_id
+    columns: { order_id: BIGINT, customer_id: BIGINT, currency: VARCHAR, items: BIGINT, units: BIGINT, gross_usd: DOUBLE, net_usd: DOUBLE }
+  int_fulfillment:
+    layer: marts
+    owner: ops-analytics
+    upstream: [stg_orders, stg_shipments, stg_returns]
+    primary_key: order_id
+    columns: { order_id: BIGINT, carrier: VARCHAR, warehouse: VARCHAR, hours_to_ship: DOUBLE, returned: BOOLEAN }
+  fct_orders:
+    layer: marts
+    owner: commerce-data
+    upstream: [int_order_revenue, stg_payments]
+    primary_key: order_id
+    columns: { order_id: BIGINT, customer_id: BIGINT, units: BIGINT, net_usd: DOUBLE, paid_usd: DOUBLE, payment_method: VARCHAR }
+  fct_revenue_daily:
+    layer: marts
+    owner: finance-data
+    upstream: [int_order_revenue]
+    columns: { currency: VARCHAR, orders: BIGINT, units: BIGINT, gross_usd: DOUBLE, net_usd: DOUBLE }
+  fct_payments:
+    layer: marts
+    owner: finance-data
+    upstream: [stg_payments]
+    columns: { method: VARCHAR, payments: BIGINT, amount_usd: DOUBLE, avg_amount_usd: DOUBLE }
+  dim_customers:
+    layer: marts
+    owner: customer-data
+    upstream: [stg_customers]
+    primary_key: customer_id
+    columns: { customer_id: BIGINT, email: VARCHAR, country: VARCHAR, signup_channel: VARCHAR, created_at: TIMESTAMP }
+  dim_products:
+    layer: marts
+    owner: commerce-data
+    upstream: [stg_products]
+    primary_key: product_id
+    columns: { product_id: BIGINT, sku: VARCHAR, category: VARCHAR, unit_price: DOUBLE }
+  fct_inventory_daily:
+    layer: marts
+    owner: ops-analytics
+    upstream: [stg_inventory, dim_products]
+    columns: { category: VARCHAR, on_hand_units: BIGINT, skus: BIGINT }
+  fct_shipments:
+    layer: marts
+    owner: ops-analytics
+    upstream: [int_fulfillment]
+    columns: { carrier: VARCHAR, shipments: BIGINT, avg_hours_to_ship: DOUBLE, return_rate: DOUBLE }
+  fct_returns:
+    layer: marts
+    owner: ops-analytics
+    upstream: [stg_returns]
+    columns: { reason: VARCHAR, returns: BIGINT, refund_amount: DOUBLE }
+  fct_web_traffic:
+    layer: marts
+    owner: growth-analytics
+    upstream: [stg_web_sessions]
+    columns: { device: VARCHAR, sessions: BIGINT, pageviews: BIGINT, logged_in_rate: DOUBLE }
+  fct_marketing_roi:
+    layer: marts
+    owner: growth-analytics
+    upstream: [stg_marketing_spend, fct_web_traffic]
+    columns: { channel: VARCHAR, spend: DOUBLE, clicks: BIGINT, sessions: BIGINT }
+  fct_support_daily:
+    layer: marts
+    owner: customer-data
+    upstream: [stg_support_tickets]
+    columns: { category: VARCHAR, tickets: BIGINT, high_priority_rate: DOUBLE }
+  mart_finance_summary:
+    layer: marts
+    owner: finance-data
+    critical: true
+    description: Daily revenue, payments, and refunds for the finance close.
+    upstream: [fct_revenue_daily, fct_payments, stg_refunds]
+    columns: { orders: BIGINT, units: BIGINT, gross_revenue_usd: DOUBLE, net_revenue_usd: DOUBLE, payments_usd: DOUBLE, refunds_usd: DOUBLE }
+  mart_exec_kpis:
+    layer: marts
+    owner: finance-data
+    critical: true
+    description: Executive dashboard with revenue, units, traffic, conversion, new customers.
+    upstream: [mart_finance_summary, fct_web_traffic, dim_customers]
+    columns: { net_revenue_usd: DOUBLE, units: BIGINT, sessions: BIGINT, conversion_rate: DOUBLE, new_customers: BIGINT }

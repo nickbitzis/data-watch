@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Watch</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1><a href="#/">Data Watch</a></h1>
+    <span class="muted sub" id="company"></span>
+    <nav>
+      <a href="#/" data-nav="overview">Health</a>
+      <a href="#/incidents" data-nav="incidents">Incidents</a>
+      <a href="#/evaluation" data-nav="evaluation">Evaluation</a>
+    </nav>
+  </header>
+  <main id="app"><p class="muted">Loading...</p></main>
+  <div id="tip" hidden></div>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
